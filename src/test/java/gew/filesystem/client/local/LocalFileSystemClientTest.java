@@ -1,6 +1,7 @@
 package gew.filesystem.client.local;
 
 import gew.filesystem.client.common.BasicFileSystemClient;
+import gew.filesystem.client.model.FileOperation;
 import gew.filesystem.client.model.FileSystemType;
 import gew.filesystem.client.model.ObjectMetaInfo;
 import gew.filesystem.client.model.ObjectProperty;
@@ -9,6 +10,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +25,9 @@ public class LocalFileSystemClientTest {
 
     @Before
     public void setUp() {
-        fileSystemClient = new LocalFileSystemClientImpl();
+        if (fileSystemClient == null) {
+            fileSystemClient = new LocalFileSystemClientImpl();
+        }
     }
 
     @Test
@@ -37,7 +41,7 @@ public class LocalFileSystemClientTest {
             Boolean exist = fileSystemClient.exist("files/Test1.txt");
             Assert.assertNotNull(exist);
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+//            ioe.printStackTrace();
             Assert.assertNotNull(ioe);
         }
     }
@@ -49,7 +53,7 @@ public class LocalFileSystemClientTest {
             String path = fileSystemClient.mkdir("files/test");
             System.out.println("mkdir: " + path);
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+//            ioe.printStackTrace();
             Assert.assertNotNull(ioe);
         }
     }
@@ -76,6 +80,44 @@ public class LocalFileSystemClientTest {
             properties.forEach(System.out::println);
         } catch (IOException ioe)  {
             Assert.assertNotNull(ioe);
+//            ioe.printStackTrace();
+        }
+    }
+
+    @Test
+    @Ignore("Ignore tests that will bring real effects")
+    public void downloadTest() {
+        String source = "files/test/sub-test.csv";
+        String destination = "files/Test.txt";
+        try {
+            Boolean status = fileSystemClient.download(source, new File(destination), FileOperation.APPEND);
+            System.out.println("Download status: " + status);
+        } catch (IllegalArgumentException e) {
+            Assert.assertFalse(e.getMessage().isEmpty());
+        } catch (IOException ioe) {
+            Assert.assertNotNull(ioe);
+//            ioe.printStackTrace();
+        }
+    }
+
+    @Test
+    @Ignore("Ignore tests that will bring real effects")
+    public void uploadTest() {
+
+    }
+
+
+
+
+    @Test
+    @Ignore("Ignore tests that will bring real effects")
+    public void deleteTest() {
+        String path = "files/random-file.txt";
+        try {
+            Boolean status = fileSystemClient.delete(path, FileOperation.DELETE_RECURSIVE);
+            System.out.println(String.format("Delete Path [%s]: %s", path, (status ? "Success" : "Failed")));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
