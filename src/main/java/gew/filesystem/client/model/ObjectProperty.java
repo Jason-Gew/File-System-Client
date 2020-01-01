@@ -12,7 +12,10 @@ public class ObjectProperty implements Serializable {
 
     private Boolean isDirectory;
 
+    private Long size;
+
     private static final long serialVersionUID = 20190324L;
+
 
     public ObjectProperty() {
 
@@ -25,6 +28,12 @@ public class ObjectProperty implements Serializable {
     public ObjectProperty(String name, Boolean isDirectory) {
         this.name = name;
         this.isDirectory = isDirectory;
+    }
+
+    public ObjectProperty(String name, Boolean isDirectory, Long size) {
+        this.name = name;
+        this.isDirectory = isDirectory;
+        this.size = size;
     }
 
     public String getName() {
@@ -48,6 +57,7 @@ public class ObjectProperty implements Serializable {
         return "ObjectProperty{" +
                 "name='" + name + '\'' +
                 ", isDirectory=" + isDirectory +
+                ", size=" + size +
                 '}';
     }
 }

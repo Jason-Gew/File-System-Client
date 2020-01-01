@@ -16,4 +16,6 @@ public enum FileSystemType {
 
     S3,
 
+    OSS,
+
 }

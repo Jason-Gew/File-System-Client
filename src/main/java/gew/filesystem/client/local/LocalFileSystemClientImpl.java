@@ -90,13 +90,14 @@ public class LocalFileSystemClientImpl implements BasicFileSystemClient {
             return new ArrayList<>(0);
         }
         Path objectPath = Paths.get(path);
-        try (Stream<Path> paths = Files.walk(objectPath, maxDepth)) {
+        try (Stream<Path> paths = Files.walk(objectPath, this.maxDepth)) {
             List<ObjectProperty> properties = paths
                     .filter(p -> !p.equals(objectPath))
                     .map(p -> Files.isDirectory(p) ? new ObjectProperty(p.toString(), true)
-                            : new ObjectProperty(p.toString(), false))
+                            : new ObjectProperty(p.toString(), false, p.toFile().length()))
                     .collect(Collectors.toList());
-            log.debug("List Path [{}] Found {} Items with Max Depth [{}]", path, properties.size(), maxDepth);
+            log.debug("List Path [{}] Found {} Items with Max Depth [{}]",
+                    path, properties.size(), this.maxDepth);
             return properties;
         }
     }

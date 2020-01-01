@@ -32,6 +32,12 @@ public class ObjectMetaInfo implements Serializable {
 
     }
 
+    public ObjectMetaInfo(Map<String, String> userData) {
+        if (userData != null) {
+            this.userData = userData;
+        }
+    }
+
     public Map<String, String> getUserData() {
         return userData;
     }
