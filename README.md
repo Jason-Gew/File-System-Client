@@ -1,4 +1,5 @@
 ## < File System Client >
+image:https://github.com/Jason-Gew/File-System-Client/workflows/Java-Build/badge.svg["build", link="https://github.com/Jason-Gew/File-System-Client/workflows/Java-Build/badge.svg"]
 
                                                                     				 By Jason/GeW
 
@@ -7,7 +8,7 @@
 
  *  Provide common interface `BasicFileSystemClient` and `CloudFileSystemClient` for basic usage.
 
- *  For `CloudFileSystemClient` design for cloud file storage like AWS S3, AliYun OSS, Azure Blob
+ *  The `CloudFileSystemClient` is designed for cloud storage like AWS S3, AliYun OSS, Azure Blob and etc.
 
  *  This project is under CI/CD.
 

@@ -1,4 +1,4 @@
-name: FileSystemClient-CI
+name: Java-Build
 
 on: [push]
 
