@@ -2,15 +2,17 @@
 
                                                                     				 By Jason/GeW
 
-#### Introduction                                                             				 
+### Introduction                                                             				 
  *  File System Client(s) for multiple file systems such as Local, SFTP, AWS S3, Hadoop File System and AliYun OSS.
 
  *  Provide common interface `BasicFileSystemClient` and `CloudFileSystemClient` for basic usage.
 
+ *  For `CloudFileSystemClient` design for cloud file storage like AWS S3, AliYun OSS, Azure Blob
+
  *  This project is under CI/CD.
 
 
-#### Usage Example
+### Usage Example
 ```java
 import gew.filesystem.client.common.BasicFileSystemClient;
 import gew.filesystem.client.sftp.SftpClientConfig;
@@ -48,7 +50,8 @@ public class Example {
         FileOperation operation = FileOperation.APPEND;     // Append Mode
         try (InputStream inputStream = new FileInputStream(new File(src))) {
             boolean result = client.upload(dest, inputStream, operation);
-            System.out.println(String.format("Upload File [%s] to [%s]: %s", src, dest, result ? "Success" : "Fail"));
+            System.out.println(String.format("Upload File [%s] to [%s]: %s", 
+                                             src, dest, result ? "Success" : "Fail"));
         }
     
         // Download Object
