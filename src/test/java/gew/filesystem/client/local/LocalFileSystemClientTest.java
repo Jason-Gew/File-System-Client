@@ -100,14 +100,6 @@ public class LocalFileSystemClientTest {
         }
     }
 
-    @Test
-    @Ignore("Ignore tests that will bring real effects")
-    public void uploadTest() {
-
-    }
-
-
-
 
     @Test
     @Ignore("Ignore tests that will bring real effects")

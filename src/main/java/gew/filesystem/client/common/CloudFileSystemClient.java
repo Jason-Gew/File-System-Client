@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 
 /**
  * Cloud File System Client for FS Services such as AWS S3, AliYun OSS and etc.

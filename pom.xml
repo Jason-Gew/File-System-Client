@@ -33,16 +33,20 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.9</version>
         </dependency>
-
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.6</version>
         </dependency>
 
+        <!--  SFTP / SSH2 Library  -->
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.55</version>
+        </dependency>
 
-
-        <!--  AWS S3 Library  -->
+        <!--  AWS S3 Library V2 -->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>

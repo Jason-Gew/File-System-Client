@@ -1,7 +1,6 @@
 package gew.filesystem.client.aws;
 
 import gew.filesystem.client.common.FileSystemConfig;
-import gew.filesystem.client.model.FileSystemType;
 
 /**
  * @author Jason/GeW
@@ -31,10 +30,6 @@ public class AwsS3ClientConfig implements FileSystemConfig {
         this.accessKeySecret = accessKeySecret;
     }
 
-    @Override
-    public FileSystemType fileSystemType() {
-        return FileSystemType.S3;
-    }
 
     public String getRegion() {
         return region;

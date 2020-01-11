@@ -40,11 +40,11 @@ public class AwsS3FileSystemClientImplTest {
             Properties properties = new Properties();
             try {
                 properties.load(Files.newInputStream(Paths.get(PROPERTY_PATH)));
-                this.defaultBucket = properties.getProperty("defaultBucket");
-                client = new AwsS3FileSystemClientImpl(this.defaultBucket, properties.getProperty("region"));
+                this.defaultBucket = properties.getProperty("aws.defaultBucket");
+                client = new AwsS3FileSystemClientImpl(this.defaultBucket, properties.getProperty("aws.region"));
 
-                client.init(new AwsS3ClientConfig(properties.getProperty("accessKeyId"),
-                        properties.getProperty("accessKeySecret")));
+                client.init(new AwsS3ClientConfig(properties.getProperty("aws.accessKeyId"),
+                        properties.getProperty("aws.accessKeySecret")));
 
             } catch (IOException ioe) {
                 ioe.printStackTrace();
@@ -55,7 +55,7 @@ public class AwsS3FileSystemClientImplTest {
 
     @Test
     public void listPathTest() {
-        String path = "xyz/";
+        String path = "tmp/";
         try {
             List<ObjectProperty> objectProperties = client.listPath(path);
             objectProperties.forEach(System.out::println);

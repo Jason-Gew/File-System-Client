@@ -50,11 +50,13 @@ import java.util.stream.Collectors;
 public class AwsS3FileSystemClientImpl implements CloudFileSystemClient {
 
     private String region;
+
     private String defaultBucket;
 
     private S3Client s3Client;
 
     private boolean existenceCheck;
+
     private boolean useTempFile;
 
 
@@ -77,8 +79,8 @@ public class AwsS3FileSystemClientImpl implements CloudFileSystemClient {
 
     @Override
     public void init(final FileSystemConfig config) {
-        if (config == null) {
-            throw new IllegalArgumentException("Invalid Initialization Properties");
+        if (!(config instanceof AwsS3ClientConfig)) {
+            throw new IllegalArgumentException("Invalid AWS S3 Client Config");
         }
         AwsS3ClientConfig awsS3ClientConfig = (AwsS3ClientConfig) config;
         if (StringUtils.isBlank(this.region)) {
@@ -264,7 +266,7 @@ public class AwsS3FileSystemClientImpl implements CloudFileSystemClient {
                 .build();
         try {
             InputStream response = s3Client.getObject(request, ResponseTransformer.toInputStream());
-            log.debug("Download Object [{}] From Bucket [{}]: {}",
+            log.debug("Prepare Downloading Object [{}] From Bucket [{}]: {}",
                     source, bucket, response == null ? "Failed" : "Success");
             return response;
 

@@ -39,6 +39,7 @@ public class LocalFileSystemClientImpl implements BasicFileSystemClient {
 
     private int maxDepth = 10;
 
+
     private static final Logger log = LogManager.getLogger(LocalFileSystemClientImpl.class);
 
 
@@ -174,6 +175,7 @@ public class LocalFileSystemClientImpl implements BasicFileSystemClient {
             long bytes = IOUtils.copyLarge(in, outputStream);
             log.debug("Upload InputStream to Local File [{}] Success, {} Bytes Saved", destination, bytes);
             return true;
+
         } catch (Exception err) {
             if (err instanceof IOException) {
                 throw err;
