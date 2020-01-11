@@ -1,5 +1,5 @@
 ## < File System Client >
-image:https://github.com/Jason-Gew/File-System-Client/workflows/Java-Build/badge.svg["build", link="https://github.com/Jason-Gew/File-System-Client/workflows/Java-Build/badge.svg"]
+![]("https://github.com/Jason-Gew/File-System-Client/workflows/Java-Build/badge.svg")
 
                                                                     				 By Jason/GeW
 
