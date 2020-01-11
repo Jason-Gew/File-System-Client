@@ -25,7 +25,7 @@ public interface BasicFileSystemClient {
     default void init(final FileSystemConfig config) {/* Default Initial Method */}
 
     /**
-     * Get File System Type/Name
+     * Get File System Type/Name.
      * @return FileSystemType
      * @see FileSystemType
      */
@@ -73,7 +73,7 @@ public interface BasicFileSystemClient {
     InputStream download(final String source) throws IOException;
 
     /**
-     * Download Object/File to Local Path, not suggest for downloading large size object/file.
+     * Download Object/File to Local Path, not suggest for downloading large size file.
      * @param source Remote Path
      * @param localFile Local Destination File
      * @param localFileOperation FileOperation, optional but only the first element will be accepted
@@ -95,7 +95,7 @@ public interface BasicFileSystemClient {
     Boolean upload(final String destination, InputStream in, FileOperation... destFileOperation) throws IOException;
 
     /**
-     * Upload Local Object/File to Remote Destination.
+     * Upload Local Object/File to Remote Destination, not suggested for large size file.
      * @param destination Remote Path
      * @param localFile Local Object/File
      * @return Destination Path

@@ -51,7 +51,7 @@ public class SftpSystemClientImplTest {
 
     @Test
     public void listPath() {
-        String path = "/home/pi/Application/";
+        String path = "/home/pi/tmp/";
         try {
             List<ObjectProperty> properties = client.listPath(path);
             properties.forEach(System.out::println);
@@ -63,7 +63,7 @@ public class SftpSystemClientImplTest {
 
     @Test
     public void getObjectMetaInfoTest() {
-        String path = "/home/pi/Application/apache-activemq-5.15.9-bin.tar.gz";
+        String path = "/home/pi/tmp/Test.txt";
         try {
             Optional<ObjectMetaInfo> metaInfo = client.getObjectMetaInfo(path);
             if (metaInfo.isPresent()) {
@@ -93,13 +93,13 @@ public class SftpSystemClientImplTest {
 
     @Test
     public void uploadTest() {
-        String dest = "/home/pi/Temp/Test.txt";
+        String dest = "/home/pi/tmp/Test.txt";
         String src = "files/Test.txt";
         FileOperation operation = FileOperation.APPEND;
 
         try (InputStream inputStream = new FileInputStream(new File(src))) {
             boolean result = client.upload(dest, inputStream, operation);
-            System.out.println("File Has Been Upload to: " + result);
+            System.out.println(String.format("Upload File [%s] to [%s]: %s", src, dest, result ? "Success" : "Fail"));
 
         } catch (IOException ioe) {
             ioe.printStackTrace();
