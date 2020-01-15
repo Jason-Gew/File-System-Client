@@ -2,11 +2,13 @@ package gew.filesystem.client.aws;
 
 import gew.filesystem.client.common.FileSystemConfig;
 
+import java.io.Serializable;
+
 /**
  * @author Jason/GeW
  * @since 2019-03-24
  */
-public class AwsS3ClientConfig implements FileSystemConfig {
+public class AwsS3ClientConfig implements FileSystemConfig, Serializable {
 
     private String region;
 

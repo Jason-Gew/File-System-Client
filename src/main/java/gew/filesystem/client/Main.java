@@ -8,7 +8,9 @@ package gew.filesystem.client;
  */
 public class Main {
 
-    public static void main(String[] args) {
+    private static final String VERSION = "1.0.1";
 
+    public static void main(String[] args) {
+        System.out.println(String.format("File-System-Client Version: %s\n", VERSION));
     }
 }
