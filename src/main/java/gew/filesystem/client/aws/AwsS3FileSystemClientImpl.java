@@ -25,6 +25,7 @@ import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.model.S3Object;
@@ -36,6 +37,7 @@ import java.io.InputStream;
 import java.io.BufferedInputStream;
 import java.nio.file.Files;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -145,12 +147,15 @@ public class AwsS3FileSystemClientImpl implements CloudFileSystemClient {
                 metaInfo.getMetaData().put("eTag", response.eTag());
                 metaInfo.getMetaDataValueType().put("eTag", String.class);
                 return Optional.of(metaInfo);
-
             } else {
                 return Optional.empty();
             }
         } catch (Exception err) {
-            throw new RuntimeException(err.getMessage(), err.getCause());
+            if (err instanceof NoSuchKeyException) {
+                return Optional.empty();
+            } else {
+                throw new RuntimeException(err.getMessage(), err.getCause());
+            }
         }
     }
 
@@ -180,7 +185,9 @@ public class AwsS3FileSystemClientImpl implements CloudFileSystemClient {
             return objects;
 
         } catch (Exception err) {
-            if (err instanceof SdkServiceException) {
+            if (err instanceof NoSuchKeyException) {
+                return new ArrayList<>(0);
+            } else if (err instanceof SdkServiceException) {
                 throw new IOException(err.getMessage(), err.getCause());
             } else {
                 log.error("List Object(s) on [{}] in Bucket [{}] Failed: {}", path, bucket, err.getMessage());
@@ -230,18 +237,18 @@ public class AwsS3FileSystemClientImpl implements CloudFileSystemClient {
     @Override
     public boolean exist(String bucket, String path) throws IOException {
         checkParameter(bucket, path);
-        ListObjectsV2Request request = ListObjectsV2Request.builder()
+        HeadObjectRequest request = HeadObjectRequest.builder()
                 .bucket(bucket)
-                .prefix(path)
-                .maxKeys(3)
+                .key(path)
                 .build();
         try {
-            ListObjectsV2Response response = s3Client.listObjectsV2(request);
-            return response.contents().stream()
-                    .anyMatch(object -> path.equals(object.key()));
+            HeadObjectResponse response = s3Client.headObject(request);
+            return response != null;
 
         } catch (Exception err) {
-            if (err instanceof SdkServiceException) {
+            if (err instanceof NoSuchKeyException) {
+                return false;
+            } else if (err instanceof SdkServiceException) {
                 throw new IOException(err.getMessage(), err.getCause());
             } else {
                 log.error("Check Object [{}] Existence in Bucket [{}] Failed: {}",

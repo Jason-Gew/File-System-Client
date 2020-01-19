@@ -14,9 +14,13 @@ public class HadoopFsClientConfig implements FileSystemConfig, Serializable {
 
     private URI nameNodeUri;
 
+    private String fsDefaultName;
+
+    private Integer replication;
+
     private String username;
 
-    private String password;
+    private boolean useCustomConfig;
 
     private Configuration configuration;
 
@@ -25,11 +29,11 @@ public class HadoopFsClientConfig implements FileSystemConfig, Serializable {
 
     }
 
-    public HadoopFsClientConfig(URI nameNodeUri, String username, String password) {
+    public HadoopFsClientConfig(URI nameNodeUri, String username) {
         this.nameNodeUri = nameNodeUri;
         this.username = username;
-        this.password = password;
     }
+
 
     public URI getNameNodeUri() {
         return nameNodeUri;
@@ -37,6 +41,22 @@ public class HadoopFsClientConfig implements FileSystemConfig, Serializable {
 
     public void setNameNodeUri(URI nameNodeUri) {
         this.nameNodeUri = nameNodeUri;
+    }
+
+    public String getFsDefaultName() {
+        return fsDefaultName;
+    }
+
+    public void setFsDefaultName(String fsDefaultName) {
+        this.fsDefaultName = fsDefaultName;
+    }
+
+    public Integer getReplication() {
+        return replication;
+    }
+
+    public void setReplication(Integer replication) {
+        this.replication = replication;
     }
 
     public String getUsername() {
@@ -47,12 +67,12 @@ public class HadoopFsClientConfig implements FileSystemConfig, Serializable {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
+    public boolean isUseCustomConfig() {
+        return useCustomConfig;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setUseCustomConfig(boolean useCustomConfig) {
+        this.useCustomConfig = useCustomConfig;
     }
 
     public Configuration getConfiguration() {
