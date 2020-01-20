@@ -263,7 +263,7 @@ public class SftpSystemClientImpl implements BasicFileSystemClient {
     @Override
     public InputStream download(String source) throws IOException {
         checkParameter(source);
-        ChannelSftp sftpChannel = null;
+        ChannelSftp sftpChannel;
         try {
             sftpChannel = openChannel();
             sftpChannel.connect();
@@ -280,8 +280,6 @@ public class SftpSystemClientImpl implements BasicFileSystemClient {
             log.error("Download Object From SFTP [{}] Exception: {}", source, err.getMessage());
             throw new IOException(err);
 
-        } finally {
-            disconnectChannel(sftpChannel);
         }
     }
 

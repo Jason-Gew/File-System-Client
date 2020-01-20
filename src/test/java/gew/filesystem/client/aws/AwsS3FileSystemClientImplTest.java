@@ -55,7 +55,7 @@ public class AwsS3FileSystemClientImplTest {
 
     @Test
     public void listPathTest() {
-        String path = "tmp/";
+        String path = "tmp/123/";
         try {
             List<ObjectProperty> objectProperties = client.listPath(path);
             objectProperties.forEach(System.out::println);
@@ -147,7 +147,7 @@ public class AwsS3FileSystemClientImplTest {
 
     @Test
     public void downloadTest1() {
-        String localPath = "files/xyz.q";
+        String localPath = "files/xyz.q1";
         String src = "tmp/tmp.a";
         try {
             boolean status = client.download(src, new File(localPath), FileOperation.APPEND);

@@ -4,6 +4,7 @@ import gew.filesystem.client.common.BasicFileSystemClient;
 import gew.filesystem.client.model.FileOperation;
 import gew.filesystem.client.model.ObjectMetaInfo;
 import gew.filesystem.client.model.ObjectProperty;
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -12,8 +13,10 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -114,6 +117,20 @@ public class SftpSystemClientImplTest {
         try {
             boolean status = client.download(src, new File(dest), FileOperation.APPEND);
             System.out.println(String.format("Download File [%s] to -> %s: %s", src, dest, status));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void streamDownloadTest() {
+        String src = "/home/pi/Application/apache-artemis-2.8.1-bin.tar.gz";
+        String dest = "files/gz-file.tar.gz";
+        try (InputStream in = client.download(src);
+             OutputStream os = new FileOutputStream(dest)) {
+            long bytes = IOUtils.copyLarge(in, os);
+            System.out.println(String.format("Download File [%s] to -> %s: %d Bytes", src, dest, bytes));
 
         } catch (IOException e) {
             e.printStackTrace();

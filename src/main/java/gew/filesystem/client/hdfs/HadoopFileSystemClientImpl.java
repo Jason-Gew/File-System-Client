@@ -7,21 +7,25 @@ import gew.filesystem.client.model.FileSystemType;
 import gew.filesystem.client.model.ObjectMetaInfo;
 import gew.filesystem.client.model.ObjectProperty;
 import gew.filesystem.client.model.ObjectType;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.BufferedInputStream;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -184,12 +188,53 @@ public class HadoopFileSystemClientImpl implements BasicFileSystemClient {
 
     @Override
     public Boolean download(String source, File localFile, FileOperation... localFileOperation) throws IOException {
-        return null;
+        checkParameter(source);
+        if (localFile == null) {
+            throw new IllegalArgumentException("Invalid Local File");
+        }
+        if (this.existenceCheck && !exist(source)) {
+            log.debug("Download Object from HDFS [{}] Failed: File Does Not Exist", source);
+            return false;
+        }
+        boolean append = localFileOperation != null && localFileOperation.length > 0
+                && FileOperation.APPEND.equals(localFileOperation[0]);
+        try (InputStream in = fileSystem.open(new Path(source));
+             OutputStream out = FileUtils.openOutputStream(localFile, append)) {
+            long bytes = IOUtils.copyLarge(in, out);
+            log.debug("Download Object From HDFS [{}] to File [{}] Success, {} Bytes",
+                    source, localFile.getName(), bytes);
+        }
+        return true;
     }
 
     @Override
     public Boolean upload(String destination, InputStream in, FileOperation... destFileOperation) throws IOException {
-        return null;
+        checkParameter(destination);
+        if (in == null) {
+            throw new IllegalArgumentException("Invalid InputStream");
+        }
+        boolean append = destFileOperation != null && destFileOperation.length > 0
+                && FileOperation.APPEND.equals(destFileOperation[0]);
+        if (append) {
+            if (this.existenceCheck && !exist(destination)) {
+                log.debug("Upload Object to HDFS [{}] in Append Mode Failed: File Does Not Exist", destination);
+                return false;
+            }
+            try (BufferedInputStream bin = new BufferedInputStream(in);
+                 OutputStream out = fileSystem.append(new Path(destination))) {
+                long bytes = IOUtils.copyLarge(bin, out);
+                log.debug("Upload Object to HDFS [{}] Success, {} Bytes Saved", destination, bytes);
+                return true;
+            }
+        } else {
+            boolean override = destFileOperation != null && destFileOperation.length > 0
+                    && FileOperation.OVERWRITE.equals(destFileOperation[0]);
+            try (OutputStream out = fileSystem.create(new Path(destination), override)) {
+                long bytes = IOUtils.copyLarge(in, out);
+                log.debug("Upload Object to HDFS [{}] Success, {} Bytes Saved", destination, bytes);
+                return true;
+            }
+        }
     }
 
     @Override
