@@ -293,9 +293,7 @@ public class SftpSystemClientImpl implements BasicFileSystemClient {
         try {
             sftpChannel = openChannel();
             sftpChannel.connect();
-            int append = localFileOperation != null && localFileOperation.length > 0
-                    && FileOperation.APPEND.equals(localFileOperation[0]) ? 2 : 0;
-            sftpChannel.get(source, localFile.getAbsolutePath(), null, append);
+            sftpChannel.get(source, localFile.getAbsolutePath(), null, isAppend(localFileOperation));
             log.debug("Download Object From SFTP [{}], Save to [{}] Success",
                     source, localFile.getAbsolutePath());
             return true;
@@ -323,9 +321,7 @@ public class SftpSystemClientImpl implements BasicFileSystemClient {
         try {
             sftpChannel = openChannel();
             sftpChannel.connect();
-            int append = destFileOperation != null && destFileOperation.length > 0
-                    && FileOperation.APPEND.equals(destFileOperation[0]) ? 2 : 0;
-            sftpChannel.put(in, destination, append);
+            sftpChannel.put(in, destination, isAppend(destFileOperation));
             log.debug("Upload File to SFTP Path [{}] Success", destination);
             return true;
 
@@ -437,6 +433,11 @@ public class SftpSystemClientImpl implements BasicFileSystemClient {
         if (channelSftp != null) {
             channelSftp.disconnect();
         }
+    }
+
+    private int isAppend(FileOperation... operations) {
+        return operations != null && operations.length > 0
+                && FileOperation.APPEND.equals(operations[0]) ? 2 : 0;
     }
 
 
