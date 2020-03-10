@@ -38,7 +38,8 @@ public class LocalFileSystemClientTest {
     @Test
     public void existsTest() {
         try {
-            Boolean exist = fileSystemClient.exist("files/Test1.txt");
+            Boolean exist = fileSystemClient.exist("files/Test.txt");
+            System.out.println(exist);
             Assert.assertNotNull(exist);
         } catch (IOException ioe) {
 //            ioe.printStackTrace();

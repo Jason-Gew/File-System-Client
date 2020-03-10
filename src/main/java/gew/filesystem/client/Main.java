@@ -11,6 +11,6 @@ public class Main {
     private static final String VERSION = "1.0.1";
 
     public static void main(String[] args) {
-        System.out.println(String.format("File-System-Client Version: %s\n", VERSION));
+        System.out.println(String.format("\nFile-System-Client Version: %s\n", VERSION));
     }
 }

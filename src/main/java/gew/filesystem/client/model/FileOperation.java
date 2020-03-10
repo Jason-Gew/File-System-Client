@@ -14,5 +14,7 @@ public enum FileOperation {
 
     OVERWRITE,
 
-    DELETE_RECURSIVE
+    DELETE_SOURCE,
+
+    DELETE_RECURSIVE,
 }

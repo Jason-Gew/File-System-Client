@@ -2,7 +2,7 @@
 ![]("https://github.com/Jason-Gew/File-System-Client/workflows/Java-Build/badge.svg")
 <img src=https://github.com/Jason-Gew/File-System-Client/workflows/Java-Build/badge.svg>
 
-                                                                    				 By Jason/GeW
+                                                                    			By Jason/GeW
 
 ### Introduction                                                             				 
  *  File System Client(s) for multiple file systems such as Local, SFTP, AWS S3, Hadoop File System and AliYun OSS.
@@ -10,6 +10,8 @@
  *  Provide common interface `BasicFileSystemClient` and `CloudFileSystemClient` for basic usage.
 
  *  The `CloudFileSystemClient` is designed for cloud storage like AWS S3, AliYun OSS, Azure Blob and etc.
+ 
+ *  `CompressUtil` supports multiple compression/decompression methods for both file and directory.
 
  *  This project is under CI/CD.
 
