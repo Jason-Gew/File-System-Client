@@ -11,8 +11,8 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <log4j.version>2.13.0</log4j.version>
-        <jackson.version>2.10.1</jackson.version>
+        <log4j.version>2.13.3</log4j.version>
+        <jackson.version>2.11.3</jackson.version>
         <aws.sdk.version>2.10.36</aws.sdk.version>
         <hadoop.client.version>3.2.1</hadoop.client.version>
     </properties>
