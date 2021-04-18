@@ -7,6 +7,9 @@ import gew.filesystem.client.model.ObjectProperty;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
+import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
+import org.apache.commons.compress.archivers.sevenz.SevenZFile;
+import org.apache.commons.compress.archivers.sevenz.SevenZFileOptions;
 import org.apache.commons.compress.archivers.sevenz.SevenZOutputFile;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -231,7 +234,7 @@ public class CompressUtil {
             compressFile(src, entryPath, zos, method, null);
         } else {
             for (ObjectProperty o : objects) {
-                String subPath = o.getName().substring(o.getName().indexOf(entryPath.toString() + File.separator)
+                String subPath = o.getName().substring(o.getName().indexOf(entryPath + File.separator)
                         + (entryPath.toString().length()));
                 if (o.getDirectory()) {
                     compressDir(Paths.get(o.getName()), Paths.get(entryPath + subPath), zos, method);
@@ -310,7 +313,7 @@ public class CompressUtil {
             compress7zFile(src, entryPath, szo, null);
         } else {
             for (ObjectProperty o : objects) {
-                String subPath = o.getName().substring(o.getName().indexOf(entryPath.toString() + File.separator)
+                String subPath = o.getName().substring(o.getName().indexOf(entryPath + File.separator)
                         + (entryPath.toString().length()));
                 if (o.getDirectory()) {
                     compress7zDir(Paths.get(o.getName()), Paths.get(entryPath + subPath), szo);
@@ -356,6 +359,10 @@ public class CompressUtil {
         return decompress(src, dest, CompressMethod.GZIP, operations);
     }
 
+    public static boolean unSevenZ(final Path src, final Path dest, FileOperation... operations) throws IOException {
+        return decompress(src, dest, CompressMethod._7Z, operations);
+    }
+
     public static boolean decompress(final Path src, final Path dest, CompressMethod method,
                                      FileOperation... operations) throws IOException {
         checkParameter(src);
@@ -398,6 +405,11 @@ public class CompressUtil {
                     throw err;
                 }
                 break;
+            }
+            case _7Z: {
+                try (SevenZFile sevenZFile = new SevenZFile(src.toFile(), SevenZFileOptions.DEFAULT)) {
+                    status = decompress7z(src, dest, sevenZFile, Files.isDirectory(dest));
+                }
             }
         }
         return status;
@@ -458,6 +470,49 @@ public class CompressUtil {
             log.debug("Decompressed GZip File [{}] Success, {} Bytes Copied", dest.getFileName(), bytes);
         }
         return true;
+    }
+
+    public static boolean decompress7z(Path src, Path dest, SevenZFile _7zFile,
+                                       boolean isDir) throws IOException {
+        SevenZArchiveEntry entry;
+        while ((entry = _7zFile.getNextEntry()) != null) {
+            if (entry.isDirectory()) {
+                if (isDir) {
+                    Path p = Files.createDirectories(Paths.get(dest + entry.getName()));
+                    boolean status = decompress7zDir(src, p, entry, true);
+                } else {
+                    throw new IllegalArgumentException("Cannot Write Directory into File");
+                }
+            } else {
+                boolean status =  decompress7zFile(src, dest, entry);
+            }
+        }
+        return true;
+    }
+
+    private static boolean decompress7zDir(Path src, Path dest, SevenZArchiveEntry entry,
+                                           boolean isDir) throws IOException {
+        return false;
+    }
+
+    private static boolean decompress7zFile(Path src, Path dest, SevenZArchiveEntry entry) throws IOException {
+//        Path filePath;
+//        if (isDir) {
+//            filePath = Paths.get(dest + File.separator + entry.getName());
+//            if (!Files.exists(filePath) && filePath.toString().contains(File.separator)) {
+//                Path d = Files.createDirectories(filePath.getParent());
+//                log.debug("System Create Directories [{}]", d.toAbsolutePath());
+//                Path f = Files.createFile(filePath);
+//                log.debug("System Create File [{}]", f.toAbsolutePath());
+//            }
+//        } else {
+//            filePath = dest;
+//        }
+//        try (OutputStream os = Files.newOutputStream(filePath, StandardOpenOption.CREATE)) {
+//            long bytes = IOUtils.copyLarge(entry., os);
+//            log.debug("Decompressed File [{}] Success, {} Bytes Copied", dest.getFileName(), bytes);
+//        }
+        return false;
     }
 
 

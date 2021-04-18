@@ -82,7 +82,7 @@ public class HadoopFileSystemClientImplTest {
         String src = "/test/telcom-data.csv";
         try {
             boolean status = client.delete(src);
-            System.out.println(String.format("Delete [%s] Status: %s", src, status));
+            System.out.printf("Delete [%s] Status: %s%n", src, status);
         } catch (IOException e) {
             e.printStackTrace();
         }

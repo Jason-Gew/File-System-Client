@@ -85,7 +85,7 @@ public class SftpSystemClientImplTest {
         String path = "/home/pi/Application/Test.txt";
         try {
             boolean exist = client.exist(path);
-            System.out.println(String.format("Path [%s] Exist: %s", path, exist));
+            System.out.printf("Path [%s] Exist: %s%n", path, exist);
 
         } catch (IOException ioe) {
             ioe.printStackTrace();
@@ -100,9 +100,9 @@ public class SftpSystemClientImplTest {
         String src = "files/Test.txt";
         FileOperation operation = FileOperation.APPEND;
 
-        try (InputStream inputStream = new FileInputStream(new File(src))) {
+        try (InputStream inputStream = new FileInputStream(src)) {
             boolean result = client.upload(dest, inputStream, operation);
-            System.out.println(String.format("Upload File [%s] to [%s]: %s", src, dest, result ? "Success" : "Fail"));
+            System.out.printf("Upload File [%s] to [%s]: %s%n", src, dest, result ? "Success" : "Fail");
 
         } catch (IOException ioe) {
             ioe.printStackTrace();
@@ -116,7 +116,7 @@ public class SftpSystemClientImplTest {
 
         try {
             boolean status = client.download(src, new File(dest), FileOperation.APPEND);
-            System.out.println(String.format("Download File [%s] to -> %s: %s", src, dest, status));
+            System.out.printf("Download File [%s] to -> %s: %s%n", src, dest, status);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -130,7 +130,7 @@ public class SftpSystemClientImplTest {
         try (InputStream in = client.download(src);
              OutputStream os = new FileOutputStream(dest)) {
             long bytes = IOUtils.copyLarge(in, os);
-            System.out.println(String.format("Download File [%s] to -> %s: %d Bytes", src, dest, bytes));
+            System.out.printf("Download File [%s] to -> %s: %d Bytes%n", src, dest, bytes);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -156,7 +156,7 @@ public class SftpSystemClientImplTest {
         String dir = "/home/pi/Temp/";
         try {
             boolean result = client.delete(dir, FileOperation.DELETE_RECURSIVE);
-            System.out.println(String.format("Delete Remote Object [%s]: %s", path, result));
+            System.out.printf("Delete Remote Object [%s]: %s%n", path, result);
 
         } catch (IOException ioe) {
             ioe.printStackTrace();

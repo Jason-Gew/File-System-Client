@@ -104,7 +104,7 @@ public class AwsS3FileSystemClientImplTest {
         ((AwsS3FileSystemClientImpl) client).setExistenceCheck(true);
         try {
             boolean status = client.delete(destination);
-            System.out.println(String.format("Delete Object on Path [%s]: %s", destination, status));
+            System.out.printf("Delete Object on Path [%s]: %s%n", destination, status);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -122,7 +122,7 @@ public class AwsS3FileSystemClientImplTest {
         try {
             String result = client.upload(this.defaultBucket, destination, new File(localFile),
                     metaDataPair1, metaDataPair2);
-            System.out.println(String.format("Upload local file [%s] to Remote Path [%s]", localFile, result));
+            System.out.printf("Upload local file [%s] to Remote Path [%s]%n", localFile, result);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -137,8 +137,7 @@ public class AwsS3FileSystemClientImplTest {
         try {
             InputStream inputStream = Files.newInputStream(Paths.get(localFile), StandardOpenOption.READ);
             boolean status = client.upload(destination, inputStream);
-            System.out.println(String.format("Upload local file [%s] to Remote Path [%s] : %s",
-                    localFile, destination, status));
+            System.out.printf("Upload local file [%s] to Remote Path [%s] : %s%n", localFile, destination, status);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -151,8 +150,7 @@ public class AwsS3FileSystemClientImplTest {
         String src = "tmp/tmp.a";
         try {
             boolean status = client.download(src, new File(localPath), FileOperation.APPEND);
-            System.out.println(String.format("Download Object [%s] to Local Path [%s]: %s",
-                    src, localPath, status));
+            System.out.printf("Download Object [%s] to Local Path [%s]: %s%n", src, localPath, status);
         } catch (IOException e) {
             e.printStackTrace();
         }

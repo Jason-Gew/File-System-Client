@@ -12,6 +12,9 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,13 +67,13 @@ public class LocalFileSystemClientTest {
         String path1 = "files/test";
         Optional<ObjectMetaInfo> objectMetaInfo1 = fileSystemClient.getObjectMetaInfo(path1);
         Assert.assertNotNull(objectMetaInfo1);
-        objectMetaInfo1.ifPresent(info -> System.out.println(String.format("MetaInfo Test for Path [%s]: %s",
-                path1, info)));
+        objectMetaInfo1.ifPresent(info -> System.out.printf("MetaInfo Test for Path [%s]: %s%n",
+                path1, info));
         String path2 = "files/Test.txt";
         Optional<ObjectMetaInfo> objectMetaInfo2 = fileSystemClient.getObjectMetaInfo(path2);
         Assert.assertNotNull(objectMetaInfo2);
-        objectMetaInfo2.ifPresent(info -> System.out.println(String.format("MetaInfo Test for Path [%s]: %s",
-                path2, info)));
+        objectMetaInfo2.ifPresent(info -> System.out.printf("MetaInfo Test for Path [%s]: %s%n",
+                path2, info));
     }
 
     @Test
@@ -108,9 +111,18 @@ public class LocalFileSystemClientTest {
         String path = "files/random-file.txt";
         try {
             Boolean status = fileSystemClient.delete(path, FileOperation.DELETE_RECURSIVE);
-            System.out.println(String.format("Delete Path [%s]: %s", path, (status ? "Success" : "Failed")));
+            System.out.printf("Delete Path [%s]: %s%n", path, (status ? "Success" : "Failed"));
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void timeIntervalTest() throws InterruptedException {
+        Instant instant1 = Instant.now();
+        Thread.sleep(3000L);
+        Instant instant2 = Instant.now();
+        System.out.println(Duration.between(instant1, instant2));
+        System.out.println(Duration.between(instant1, instant2).compareTo(Duration.of(6, ChronoUnit.SECONDS)));
     }
 }
