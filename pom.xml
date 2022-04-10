@@ -7,12 +7,12 @@
     <groupId>gew</groupId>
     <artifactId>file-system-client</artifactId>
     <version>1.0.1</version>
-    <description>File Client for Multiple File Systems Such SFTP, AWS S3, Apache Hadoop and etc.</description>
+    <description>File Client for Multiple File Systems such as SFTP, AWS S3, Apache Hadoop and etc.</description>
 
     <properties>
         <java.version>1.8</java.version>
-        <log4j.version>2.14.1</log4j.version>
-        <jackson.version>2.12.3</jackson.version>
+        <log4j.version>2.17.2</log4j.version>
+        <jackson.version>2.13.2</jackson.version>
         <aws.sdk.version>2.10.36</aws.sdk.version>
         <hadoop.client.version>3.2.1</hadoop.client.version>
     </properties>
@@ -35,7 +35,12 @@
             <artifactId>log4j-api</artifactId>
             <version>${log4j.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.22</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -68,7 +73,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
+            <version>2.13.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -165,6 +170,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-mapreduce-client-core</artifactId>
+            <version>${hadoop.client.version}</version>
+        </dependency>
+
 
 
         <!--  junit Library -->

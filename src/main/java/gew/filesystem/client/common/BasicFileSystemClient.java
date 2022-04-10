@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Basic File System Client. Support common file operations such as ls, mkdir, download, upload and etc.
+ * Basic File System Client. Support common file operations such as ls, mkdir, download, upload etc.
  * @author Jason/GeW
  * @since 2019-03-24
  */
@@ -117,4 +117,5 @@ public interface BasicFileSystemClient {
      * Default Close Method. Not mandatory for all clients.
      */
     default void close() {/* Default Close Method */}
+
 }
