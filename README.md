@@ -5,11 +5,11 @@
                                                                     			By Jason/GeW
 
 ### Introduction                                                             				 
- *  File System Client(s) for multiple file systems such as Local, SFTP, AWS S3, Hadoop File System and AliYun OSS.
+ *  File System Client(s) for multiple file systems such as Local, **SFTP**, **AliYun OSS**, **AWS S3**, and HDFS.
 
- *  Provide common interface `BasicFileSystemClient` and `CloudFileSystemClient` for basic usage.
+ *  Provide common **SPI** `BasicFileSystemClient` and `CloudFileSystemClient` for basic usage.
 
- *  The `CloudFileSystemClient` is designed for cloud storage like AWS S3, AliYun OSS, Azure Blob and etc.
+ *  The `CloudFileSystemClient` is designed for cloud object service like AWS S3, AliYun OSS, Azure Blob etc.
  
  *  `CompressUtil` supports multiple compression/decompression methods for both file and directory.
 
@@ -19,12 +19,12 @@
 ### Usage Example
 
 ```java
-import gew.filesystem.client.common.BasicFileSystemClient;
-import gew.filesystem.client.sftp.SftpClientConfig;
-import gew.filesystem.client.sftp.SftpSystemClientImpl;
-import gew.filesystem.client.model.FileOperation;
-import gew.filesystem.client.model.ObjectMetaInfo;
-import gew.filesystem.client.model.ObjectProperty;
+import gew.filesystem.common.service.BasicFileSystemClient;
+import gew.filesystem.common.config.SftpClientConfig;
+import gew.filesystem.common.sftp.SftpSystemClientImpll;
+import gew.filesystem.common.model.FileOperation;
+import gew.filesystem.common.model.ObjectMetaInfo;
+import gew.filesystem.common.model.ObjectProperty;
 
 import java.io.IOException;
 
@@ -41,7 +41,7 @@ public class Example {
         client.init(sftpConfig);
 
         // Get Object Meta
-        String path = "/home/admin/tmp/Test.txt";
+        String path = "/home/admin/tmp/test.txt";
         Optional<ObjectMetaInfo> metaInfo = client.getObjectMetaInfo(path);
         if (metaInfo.isPresent()) {
             System.out.println(metaInfo.get());
