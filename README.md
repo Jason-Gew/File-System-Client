@@ -5,15 +5,17 @@
                                                                     			By Jason/GeW
 
 ### Introduction                                                             				 
- *  File System Client(s) for multiple file systems such as Local, **SFTP**, **AliYun OSS**, **AWS S3**, and HDFS.
+ * File System Client for multiple file systems such as Local, **SFTP**, **AliYun OSS**, **AWS S3**, and HDFS.
 
- *  Provide common **SPI** `BasicFileSystemClient` and `CloudFileSystemClient` for basic usage.
+ * Provide common **SPI** `BasicFileSystemClient` and `CloudFileSystemClient` for basic usage.
 
- *  The `CloudFileSystemClient` is designed for cloud object service like AWS S3, AliYun OSS, Azure Blob etc.
+ * The `CloudFileSystemClient` is designed for cloud object store service like AWS S3, AliYun OSS, Azure Blob etc.
  
- *  `CompressUtil` supports multiple compression/decompression methods for both file and directory.
+ * `CompressUtil` supports multiple compression / decompression methods for both file and directory.
 
- *  This project is under CI/CD.
+ * All modules are tested in production environment.
+
+ * This project is under CI/CD.
 
 
 ### Usage Example
@@ -69,7 +71,8 @@ public class Example {
 
 ```
 
-
+### Note
+You're welcome to submit any question(s) or ticket(s) [here](https://github.com/Jason-Gew/File-System-Client/issues) !
 
                                                                     				
                                                     
