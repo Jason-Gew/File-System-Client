@@ -4,6 +4,7 @@ package gew.filesystem.s3.config;
 import gew.filesystem.common.config.FileSystemConfig;
 import lombok.Getter;
 import lombok.Setter;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 
 import java.io.Serializable;
 
@@ -25,6 +26,8 @@ public class AwsS3ClientConfig implements FileSystemConfig, Serializable {
     private String accessKeyId;
 
     private String accessKeySecret;
+
+    private AwsCredentialsProvider credentialsProvider;
 
 
     public AwsS3ClientConfig() {

@@ -32,7 +32,7 @@ public class ObjectMetaInfo implements Serializable {
 
     private Instant creationTime;
 
-    private Instant modifiedTime;
+    private Instant lastModified;
 
     private Long size;
 

@@ -22,7 +22,6 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.time.Instant;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -62,8 +61,7 @@ public class LocalFileSystemClientImpl implements BasicFileSystemClient {
             BasicFileAttributes attributes = Files.readAttributes(Paths.get(path), BasicFileAttributes.class);
             if (attributes != null) {
                 objectMetaInfo.setCreationTime(attributes.creationTime().toInstant());
-                objectMetaInfo.getMetaData().put("lastModifiedTime", attributes.lastModifiedTime().toInstant());
-                objectMetaInfo.getMetaDataValueType().put("lastModifiedTime", Instant.class);
+                objectMetaInfo.setLastModified(attributes.lastModifiedTime().toInstant());
                 objectMetaInfo.setSize(attributes.size());
                 if (attributes.isDirectory()) {
                     objectMetaInfo.setObjectType(ObjectType.DIRECTORY);

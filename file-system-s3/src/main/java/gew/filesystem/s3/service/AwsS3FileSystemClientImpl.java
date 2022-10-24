@@ -13,6 +13,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.core.exception.SdkServiceException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
@@ -96,11 +97,16 @@ public class AwsS3FileSystemClientImpl implements CloudFileSystemClient {
         if (StringUtils.isBlank(this.region)) {
             this.region = awsS3ClientConfig.getRegion();
         }
-        init(awsS3ClientConfig.getAccessKeyId(), awsS3ClientConfig.getAccessKeySecret());
+        init(awsS3ClientConfig.getAccessKeyId(), awsS3ClientConfig.getAccessKeySecret(),
+                awsS3ClientConfig.getCredentialsProvider());
     }
 
-    public void init(final String accessKey, final String accessSecret) {
-        if (StringUtils.isAnyBlank(accessKey, accessSecret)) {
+    public void init(final String accessKey, final String accessSecret, AwsCredentialsProvider credentialsProvider) {
+        if (credentialsProvider != null) {
+            this.s3Client = S3Client.builder().credentialsProvider(credentialsProvider)
+                    .region(Region.of(this.region))
+                    .build();
+        } else if (StringUtils.isAnyBlank(accessKey, accessSecret)) {
             this.s3Client = S3Client.builder().build();
             log.debug("Default AWS S3 Client Initialized");
         } else {
@@ -145,7 +151,7 @@ public class AwsS3FileSystemClientImpl implements CloudFileSystemClient {
             HeadObjectResponse response = s3Client.headObject(request);
             if (response != null) {
                 ObjectMetaInfo metaInfo = new ObjectMetaInfo(response.metadata());
-                metaInfo.setModifiedTime(response.lastModified());
+                metaInfo.setLastModified(response.lastModified());
                 metaInfo.setContentType(response.contentType());
                 metaInfo.setSize(response.contentLength());
 
@@ -506,4 +512,5 @@ public class AwsS3FileSystemClientImpl implements CloudFileSystemClient {
     public void setS3Client(S3Client s3Client) {
         this.s3Client = s3Client;
     }
+
 }

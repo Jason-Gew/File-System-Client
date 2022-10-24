@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -122,8 +123,8 @@ public class HadoopFileSystemClientImpl implements BasicFileSystemClient {
                 metaInfo.getMetaData().putAll(meta);
                 meta.forEach(((k, v) -> metaInfo.getMetaDataValueType().put(k, byte[].class)));
             }
-            metaInfo.getMetaData().put("lastModifiedTime", fileStatus.getModificationTime());
-            metaInfo.getMetaDataValueType().put("lastModifiedTime", Long.class);
+            metaInfo.setLastModified(Instant.ofEpochSecond(fileStatus.getModificationTime()));
+
             metaInfo.getMetaData().put("owner", fileStatus.getOwner());
             metaInfo.getMetaDataValueType().put("owner", String.class);
             metaInfo.getMetaData().put("group", fileStatus.getGroup());

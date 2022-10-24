@@ -6,6 +6,7 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.OSSException;
+import com.aliyun.oss.internal.OSSHeaders;
 import com.aliyun.oss.model.ListObjectsRequest;
 import com.aliyun.oss.model.OSSObject;
 import com.aliyun.oss.model.OSSObjectSummary;
@@ -123,7 +124,12 @@ public class AliOssFileSystemClientImpl implements CloudFileSystemClient {
             metaInfo.setMetaData(metaInfo.getMetaData());
             metaInfo.setUserData(metadata.getUserMetadata());
             metaInfo.setContentType(metadata.getContentType());
-            metaInfo.setModifiedTime(metadata.getLastModified().toInstant());
+            metaInfo.setLastModified(metadata.getLastModified().toInstant());
+            metaInfo.getMetaData().put(OSSHeaders.ETAG, metadata.getETag());
+            metaInfo.getMetaDataValueType().put(OSSHeaders.ETAG, String.class);
+            metaInfo.getMetaData().put(OSSHeaders.OSS_HEADER_VERSION_ID, metadata.getVersionId());
+            metaInfo.getMetaDataValueType().put(OSSHeaders.OSS_HEADER_VERSION_ID, String.class);
+
             return Optional.of(metaInfo);
 
         } catch (OSSException | ClientException re) {
@@ -170,8 +176,8 @@ public class AliOssFileSystemClientImpl implements CloudFileSystemClient {
     @Override
     public String mkdir(String bucket, String path) throws IOException {
         try {
-            this.ossClient.createDirectory(bucket, path);
-            return path;
+            VoidResult result = this.ossClient.createDirectory(bucket, path);
+            return result.getResponse() != null && result.getResponse().isSuccessful() ? path : StringUtils.EMPTY;
 
         } catch (OSSException | ClientException re) {
             throw new IOException("Create Directory Failed", re);
@@ -225,6 +231,7 @@ public class AliOssFileSystemClientImpl implements CloudFileSystemClient {
         try {
             OSSObject object = this.ossClient.getObject(bucket, source);
             return object.getObjectContent();
+
         } catch (OSSException | ClientException re) {
             log.error("Download Object Key={} From Bucket={} Failed: {}", source, bucket, re.getMessage());
             throw new IOException(re.getMessage(), re.getCause());
@@ -233,7 +240,24 @@ public class AliOssFileSystemClientImpl implements CloudFileSystemClient {
 
     @Override
     public Boolean upload(String destination, InputStream in, FileOperation... destFileOperation) throws IOException {
-        return null;
+        if (StringUtils.isBlank(destination) || in == null) {
+            return false;
+        }
+        try {
+            PutObjectResult result = this.ossClient.putObject(this.defaultBucket, destination, in);
+            if (result.getResponse().isSuccessful()) {
+                log.debug("Upload Stream File to Bucket={} Key={} Success", this.defaultBucket, destFileOperation);
+                return true;
+            } else {
+                log.warn("Upload Stream File to Bucket={} Key={} Failed: {}", this.defaultBucket, destFileOperation,
+                        result.getResponse().getErrorResponseAsString());
+                return false;
+            }
+        } catch (OSSException | ClientException re) {
+            log.error("Upload Stream File to Bucket={}, Key={}, Exception: {}", this.defaultBucket, destFileOperation,
+                    re.getMessage());
+            throw new IOException(re.getMessage(), re.getCause());
+        }
     }
 
 
