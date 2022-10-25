@@ -16,7 +16,7 @@ import java.util.Optional;
  * Cloud File System Client for FS Services such as AWS S3, Aliyun OSS etc.
  *
  * @author Jason/GeW
- * @since 2019-03-24
+ * @since  2019-03-24
  */
 public interface CloudFileSystemClient extends BasicFileSystemClient {
 
@@ -24,7 +24,7 @@ public interface CloudFileSystemClient extends BasicFileSystemClient {
      * Cloud File System Client Initialization
      *
      * @param config        Corresponding File System Client Config
-     * @throws RuntimeException
+     * @throws RuntimeException Invalid Config or Client Init Error
      */
     void init(final FileSystemConfig config) throws RuntimeException;
 
@@ -92,14 +92,27 @@ public interface CloudFileSystemClient extends BasicFileSystemClient {
                   MetaDataPair... metaDataPairs) throws IOException;
 
     /**
-     * Delete object from specific bucket
+     * Upload object to specific bucket
      *
      * @param bucket        Bucket
-     * @param path          Destination Path
-     * @param fileOperations recursive or not
-     * @return              success in true / false
+     * @param destination   Destination Path
+     * @param in            FileInputStream
+     * @param metaDataPairs Meta Info
+     * @return              true / false
      * @throws IOException  Exception from client
      */
+    Boolean upload(final String bucket, final String destination, InputStream in,
+                   MetaDataPair... metaDataPairs) throws IOException;
+
+   /**
+    * Delete object from specific bucket
+    *
+    * @param bucket        Bucket
+    * @param path          Destination Path
+    * @param fileOperations recursive or not
+    * @return              success in true / false
+    * @throws IOException  Exception from client
+    */
     Boolean delete(final String bucket, final String path, FileOperation... fileOperations) throws IOException;
 
     /**

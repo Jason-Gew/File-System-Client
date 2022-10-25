@@ -9,7 +9,7 @@ import lombok.Setter;
  * SFTP Basic Configuration
  *
  * @author Jason/GeW
- * @since 2019-03-24
+ * @since  2019-03-24
  */
 @Getter
 @Setter

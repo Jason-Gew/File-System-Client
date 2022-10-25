@@ -12,8 +12,10 @@ import java.io.Serializable;
 
 
 /**
+ * Object Meta Data & Information
+ *
  * @author Jason/GeW
- * @since 2019-03-24
+ * @since  2019-03-24
  */
 @Getter
 @Setter

@@ -31,6 +31,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
  * AliYun OSS File System Client
  *
  * @author Jason/GeW
- * @since  2019-03-24
+ * @since  2019-10-24
  */
 @Slf4j
 public class AliOssFileSystemClientImpl implements CloudFileSystemClient {
@@ -56,7 +57,7 @@ public class AliOssFileSystemClientImpl implements CloudFileSystemClient {
     private String defaultBucket;
 
     /**
-     * When list object, the max number
+     * When list object, the max number | Default Max = 1000
      */
     private int maxListObjects = 1000;
 
@@ -74,14 +75,14 @@ public class AliOssFileSystemClientImpl implements CloudFileSystemClient {
         if (!(config instanceof AliOssConfig)) {
             throw new IllegalArgumentException("Invalid Ali OSS Client Config");
         }
+        if (this.ossClient != null) {
+            log.debug("OSS Client Has Been Initialized");
+            return;
+        }
         AliOssConfig ossConfig = (AliOssConfig) config;
         if (StringUtils.isBlank(ossConfig.getEndpoint())
                 && !ossConfig.getEndpoint().toLowerCase(Locale.ROOT).contains("http")) {
             throw new IllegalArgumentException("Invalid OSS EndPoint Config");
-        }
-        if (this.ossClient != null) {
-            log.debug("OSS Client Has Been Initialized");
-            return;
         }
         if (ossConfig.getCredentialsProvider() != null) {
             this.ossClient = new OSSClientBuilder().build(ossConfig.getEndpoint(), ossConfig.getCredentialsProvider());
@@ -240,26 +241,44 @@ public class AliOssFileSystemClientImpl implements CloudFileSystemClient {
 
     @Override
     public Boolean upload(String destination, InputStream in, FileOperation... destFileOperation) throws IOException {
-        if (StringUtils.isBlank(destination) || in == null) {
-            return false;
+        return upload(this.defaultBucket, destination, in);
+    }
+
+    @Override
+    public Boolean upload(String bucket, String destination, InputStream in, MetaDataPair... metaDataPairs) throws IOException {
+        checkParameter(bucket, destination);
+        if (in == null) {
+            throw new IllegalArgumentException("Invalid InputStream");
         }
+        PutObjectResult result;
         try {
-            PutObjectResult result = this.ossClient.putObject(this.defaultBucket, destination, in);
+            long start = System.currentTimeMillis();
+            log.debug("Start Uploading Local File to Bucket={} Path={}", bucket, destination);
+            if (metaDataPairs != null && metaDataPairs.length > 0) {
+                ObjectMetadata metadata = new ObjectMetadata();
+                Arrays.stream(metaDataPairs)
+                        .filter(m -> !StringUtils.isAnyEmpty(m.getKey(), m.getValue()))
+                        .forEach(m -> metadata.addUserMetadata(m.getKey(), m.getValue()));
+                result = this.ossClient.putObject(this.defaultBucket, destination, in, metadata);
+            } else {
+                result = this.ossClient.putObject(this.defaultBucket, destination, in);
+            }
+            long end = System.currentTimeMillis();
+            log.debug("Finish Uploading File to Bucket={} Path={}, Time Utilized: {}ms", bucket, destination,
+                    (end - start));
             if (result.getResponse().isSuccessful()) {
-                log.debug("Upload Stream File to Bucket={} Key={} Success", this.defaultBucket, destFileOperation);
+                log.debug("Upload Stream File to Bucket={} Key={} Success", bucket, destination);
                 return true;
             } else {
-                log.warn("Upload Stream File to Bucket={} Key={} Failed: {}", this.defaultBucket, destFileOperation,
+                log.warn("Upload Stream File to Bucket={} Key={} Failed: {}", bucket, destination,
                         result.getResponse().getErrorResponseAsString());
                 return false;
             }
         } catch (OSSException | ClientException re) {
-            log.error("Upload Stream File to Bucket={}, Key={}, Exception: {}", this.defaultBucket, destFileOperation,
-                    re.getMessage());
+            log.error("Upload Stream File to Bucket={}, Key={}, Exception: {}", bucket, destination, re.getMessage());
             throw new IOException(re.getMessage(), re.getCause());
         }
     }
-
 
     @Override
     public String upload(String destination, File localFile) throws IOException {
@@ -274,19 +293,21 @@ public class AliOssFileSystemClientImpl implements CloudFileSystemClient {
         }
         try {
             PutObjectResult result;
-            if (metaDataPairs.length > 0) {
-                ObjectMetadata metadata = new ObjectMetadata();
-                for (MetaDataPair pair : metaDataPairs) {
-                    if (StringUtils.isAnyBlank(pair.getKey(), pair.getValue())) {
-                        continue;
-                    }
-                    metadata.addUserMetadata(pair.getKey(), pair.getValue());
-                }
+            long start = System.currentTimeMillis();
+            log.debug("Start Uploading Local File to Bucket={} Path={}", bucket, destination);
+            if (metaDataPairs != null && metaDataPairs.length > 0) {
+                    ObjectMetadata metadata = new ObjectMetadata();
+                    Arrays.stream(metaDataPairs)
+                            .filter(m -> !StringUtils.isAnyEmpty(m.getKey(), m.getValue()))
+                            .forEach(m -> metadata.addUserMetadata(m.getKey(), m.getValue()));
                 result = this.ossClient.putObject(bucket, destination, localFile, metadata);
 
             } else {
                 result = this.ossClient.putObject(bucket, destination, localFile);
             }
+            long end = System.currentTimeMillis();
+            log.debug("Finish Uploading File to Bucket={} Path={}, Time Utilized: {}ms", bucket, destination,
+                    (end - start));
             log.info("UploadFile={} to Bucket={}, Key={}, {}", localFile.getPath(), bucket,
                     destination, result.getResponse().isSuccessful() ? "Success" : "Failed");
             return destination;

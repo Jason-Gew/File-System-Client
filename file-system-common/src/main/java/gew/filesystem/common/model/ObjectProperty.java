@@ -3,8 +3,10 @@ package gew.filesystem.common.model;
 import java.io.Serializable;
 
 /**
+ * Short Property Info
+ *
  * @author Jason/GeW
- * @since 2019-03-24
+ * @since  2019-03-24
  */
 public class ObjectProperty implements Serializable {
 

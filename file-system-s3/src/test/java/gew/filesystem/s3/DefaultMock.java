@@ -1,4 +1,4 @@
-package gew.filesystem.common;
+package gew.filesystem.s3;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
 
 /**
  * @author Jason/GeW
- * @since 2019-10-22
+ * @since  2019-10-24
  */
 public class DefaultMock {
 

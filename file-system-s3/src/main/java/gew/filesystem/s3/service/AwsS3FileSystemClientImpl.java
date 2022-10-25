@@ -36,13 +36,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.InputStream;
 import java.io.BufferedInputStream;
-import java.nio.file.Files;
+import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -68,7 +69,10 @@ public class AwsS3FileSystemClientImpl implements CloudFileSystemClient {
      */
     private S3Client s3Client;
 
-    private boolean existenceCheck;
+    /**
+     * When list object, the max number | Default Max = 1000
+     */
+    private int maxListObjects = 1000;
 
     private boolean useTempFile;
 
@@ -92,6 +96,10 @@ public class AwsS3FileSystemClientImpl implements CloudFileSystemClient {
     public void init(final FileSystemConfig config) {
         if (!(config instanceof AwsS3ClientConfig)) {
             throw new IllegalArgumentException("Invalid AWS S3 Client Config");
+        }
+        if (this.s3Client != null) {
+            log.info("AWS S3 Client Has Been Initialized");
+            return;
         }
         AwsS3ClientConfig awsS3ClientConfig = (AwsS3ClientConfig) config;
         if (StringUtils.isBlank(this.region)) {
@@ -190,6 +198,7 @@ public class AwsS3FileSystemClientImpl implements CloudFileSystemClient {
         ListObjectsV2Request request = ListObjectsV2Request.builder()
                 .bucket(bucket)
                 .prefix(path)
+                .maxKeys(this.maxListObjects)
                 .build();
         try {
             ListObjectsV2Response response = s3Client.listObjectsV2(request);
@@ -335,42 +344,32 @@ public class AwsS3FileSystemClientImpl implements CloudFileSystemClient {
 
     @Override
     public Boolean upload(String destination, InputStream in, FileOperation... destFileOperation) throws IOException {
+        return upload(this.defaultBucket, destination, in);
+    }
+
+    @Override
+    public Boolean upload(String bucket, String destination, InputStream in, MetaDataPair... metaDataPairs) throws IOException {
         checkParameter(this.defaultBucket, destination);
         if (in == null) {
             throw new IllegalArgumentException("Invalid InputStream");
         }
-        if (destFileOperation != null && destFileOperation.length > 0
-                && FileOperation.APPEND.equals(destFileOperation[0])) {
-            throw new IllegalArgumentException("Current AWS S3 Does Not Support Append Service");
-        }
-        if (useTempFile) {
-            File tmp = createTempFile("s3-obj-" + System.currentTimeMillis(), in);
-            String dest = upload(destination, tmp);
-            return StringUtils.isNotBlank(dest);
+        PutObjectRequest request = genPutObjectRequest(bucket, destination, metaDataPairs);
+        try {
+            long start = System.currentTimeMillis();
+            log.debug("Start Uploading Streaming File to Bucket [{}] Path={}", bucket, destination);
+            PutObjectResponse response = s3Client.putObject(request, RequestBody.fromByteBuffer(
+                    ByteBuffer.wrap(IOUtils.toByteArray(in))));
+            long end = System.currentTimeMillis();
+            log.debug("Finish Uploading Streaming File to Bucket [{}] Path={}, Time Utilized: {}ms", bucket, destination,
+                    (end - start));
+            return StringUtils.isNotEmpty(response.eTag());
 
-        } else {
-            PutObjectRequest request = PutObjectRequest.builder()
-                    .bucket(this.defaultBucket)
-                    .key(destination)
-                    .build();
-            try {
-                long start = System.currentTimeMillis();
-                log.debug("Start Uploading Local Object as InputStream to Bucket [{}] Path={}",
-                        this.defaultBucket, destination);
-                PutObjectResponse resp = s3Client.putObject(request, RequestBody.fromBytes(IOUtils.toByteArray(in)));
-                long end = System.currentTimeMillis();
-                log.debug("Finish Uploading Object to Bucket [{}] Path={}, Time Utilized: {}ms",
-                        defaultBucket, destination, (end - start));
-                return StringUtils.isNotBlank(resp.eTag());
-
-            } catch (Exception err) {
-                if (err instanceof SdkServiceException) {
-                    throw new IOException(err.getMessage(), err.getCause());
-                } else {
-                    log.error("Upload InputStream to Bucket [{}] as [{}] Failed: {}",
-                            this.defaultBucket, destination, err.getMessage());
-                    throw err;
-                }
+        } catch (Exception err) {
+            if (err instanceof SdkServiceException) {
+                throw new IOException(err.getMessage(), err.getCause());
+            } else {
+                log.error("Upload Streaming File to Bucket [{}] Path={} Failed: {}", bucket, destination, err.getMessage());
+                throw err;
             }
         }
     }
@@ -386,25 +385,7 @@ public class AwsS3FileSystemClientImpl implements CloudFileSystemClient {
         if (localFile == null) {
             throw new IllegalArgumentException("Invalid Local File");
         }
-        PutObjectRequest request;
-        if (metaDataPairs != null && metaDataPairs.length > 0) {
-            Map<String, String> metadata = new LinkedHashMap<>();
-            for (MetaDataPair pair : metaDataPairs) {
-                if (!StringUtils.isAnyBlank(pair.getKey(), pair.getValue())) {
-                    metadata.put(pair.getKey(), pair.getValue());
-                }
-            }
-            request = PutObjectRequest.builder()
-                    .bucket(bucket)
-                    .key(destination)
-                    .metadata(metadata)
-                    .build();
-        } else {
-            request = PutObjectRequest.builder()
-                    .bucket(bucket)
-                    .key(destination)
-                    .build();
-        }
+        PutObjectRequest request = genPutObjectRequest(bucket, destination, metaDataPairs);
         try {
             long start = System.currentTimeMillis();
             log.debug("Start Uploading Local File [Path={}, Size={}] to Bucket [{}] Path={}",
@@ -413,11 +394,8 @@ public class AwsS3FileSystemClientImpl implements CloudFileSystemClient {
             long end = System.currentTimeMillis();
             log.debug("Finish Uploading File [{}] to Bucket [{}] Path={}, Time Utilized: {}ms",
                     localFile.getName(), bucket, destination, (end - start));
-            if (StringUtils.isNotBlank(response.eTag())) {
-                return destination;
-            } else {
-                return null;
-            }
+            return StringUtils.isEmpty(response.eTag()) ? null : destination;
+
         } catch (Exception err) {
             if (err instanceof SdkServiceException) {
                 throw new IOException(err.getMessage(), err.getCause());
@@ -443,12 +421,6 @@ public class AwsS3FileSystemClientImpl implements CloudFileSystemClient {
                 .key(path)
                 .build();
         try {
-            if (this.existenceCheck) {
-                if (!exist(bucket, path)) {
-                    log.info("Delete Failed: Object [{}] Does Not Exist in Bucket [{}}]", path, bucket);
-                    return false;
-                }
-            }
             DeleteObjectResponse response = s3Client.deleteObject(request);
             log.info("Delete Object [{}] in Bucket [{}]: {}", path, bucket, response.deleteMarker());
             return true;
@@ -482,11 +454,34 @@ public class AwsS3FileSystemClientImpl implements CloudFileSystemClient {
         }
     }
 
-    private File createTempFile(final String name, InputStream inputStream) throws IOException {
-        File tmp = Files.createTempFile(name, ".tmp").toFile();
-        FileUtils.copyToFile(new BufferedInputStream(inputStream), tmp);
-        log.debug("Create Temporary File: " + tmp.getAbsolutePath());
-        return tmp;
+    private PutObjectRequest genPutObjectRequest(String bucket, String key, MetaDataPair... pairs) {
+        if (pairs != null && pairs.length > 0) {
+            Map<String, String> metadata = new HashMap<>();
+            Arrays.stream(pairs)
+                    .filter(m -> !StringUtils.isAnyEmpty(m.getKey(), m.getValue()))
+                    .forEach(m -> metadata.put(m.getKey(), m.getValue()));
+            return PutObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(key)
+                    .metadata(metadata)
+                    .build();
+        } else {
+            return PutObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(key)
+                    .build();
+        }
+    }
+
+    private Map<String, String> genMetaDataFromPairs(MetaDataPair... pairs) {
+        if (pairs != null && pairs.length > 0) {
+            Map<String, String> metadata = new HashMap<>();
+            Arrays.stream(pairs)
+                    .filter(m -> !StringUtils.isAnyEmpty(m.getKey(), m.getValue()))
+                    .forEach(m -> metadata.put(m.getKey(), m.getValue()));
+            return metadata;
+        }
+        return new HashMap<>(0);
     }
 
 
@@ -501,12 +496,12 @@ public class AwsS3FileSystemClientImpl implements CloudFileSystemClient {
         this.defaultBucket = defaultBucket;
     }
 
-    public void setExistenceCheck(boolean existenceCheck) {
-        this.existenceCheck = existenceCheck;
-    }
 
-    public void setUseTempFile(boolean useTempFile) {
-        this.useTempFile = useTempFile;
+    public void setMaxListObjects(int maxListObjects) {
+        if (maxListObjects < 1 || maxListObjects > 1000) {
+            throw new IllegalArgumentException("OSS Max List Object Keys [1, 1000]");
+        }
+        this.maxListObjects = maxListObjects;
     }
 
     public void setS3Client(S3Client s3Client) {

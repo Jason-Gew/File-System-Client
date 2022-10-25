@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  * Local File System Client Based on Java 8 NIO and Apache Commons-io
  *
  * @author Jason/GeW
- * @since 2019-03-24
+ * @since  2019-03-24
  */
 @Slf4j
 public class LocalFileSystemClientImpl implements BasicFileSystemClient {

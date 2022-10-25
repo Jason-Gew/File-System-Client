@@ -8,7 +8,7 @@ import java.util.Properties;
 
 /**
  * @author Jason/GeW
- * @since 2022-10-22
+ * @since  2019-10-24
  */
 @Slf4j
 public class DefaultPropertyReader {

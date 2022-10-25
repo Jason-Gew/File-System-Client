@@ -9,8 +9,9 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.io.Serializable;
 
 /**
+ * MetaData Pair
  * @author Jason/GeW
- * @since 2019-03-24
+ * @since  2019-03-24
  */
 @Getter
 @Setter

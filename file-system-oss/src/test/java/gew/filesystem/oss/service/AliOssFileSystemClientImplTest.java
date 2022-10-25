@@ -15,6 +15,7 @@ import gew.filesystem.common.model.FileOperation;
 import gew.filesystem.common.model.FileSystemType;
 import gew.filesystem.common.model.ObjectMetaInfo;
 import gew.filesystem.common.model.ObjectProperty;
+import gew.filesystem.oss.DefaultMock;
 import gew.filesystem.oss.config.AliOssConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -141,9 +142,10 @@ class AliOssFileSystemClientImplTest extends DefaultMock {
         Mockito.when(this.ossClient.putObject(Mockito.anyString(), Mockito.anyString(), Mockito.any(File.class)))
                 .thenThrow(OSSException.class);
         try {
-            Assertions.assertFalse(cloudFileSystemClient.upload("files/test.txt", null,
-                    FileOperation.APPEND));
+            Assertions.assertThrows(IllegalArgumentException.class, () -> cloudFileSystemClient.upload(
+                    "files/test.txt", null));
             cloudFileSystemClient.upload("files/test.txt", new File("pom.properties"));
+
         } catch (IOException ioe) {
             Assertions.assertNotNull(ioe);
         }
