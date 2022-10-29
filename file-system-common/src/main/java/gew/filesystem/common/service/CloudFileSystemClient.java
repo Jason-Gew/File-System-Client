@@ -79,6 +79,19 @@ public interface CloudFileSystemClient extends BasicFileSystemClient {
     InputStream download(final String bucket, final String source) throws IOException;
 
     /**
+     * Download object from specific bucket
+     *
+     * @param bucket        Bucket
+     * @param source        Remote Path
+     * @param localFile     Local Destination File
+     * @param operations    Local File Operations, Such As Append
+     * @return              true / false
+     * @throws IOException  Exception from client
+     */
+    Boolean download(final String bucket, final String source, File localFile, FileOperation... operations)
+            throws IOException;
+
+    /**
      * Upload object to specific bucket
      *
      * @param bucket        Bucket

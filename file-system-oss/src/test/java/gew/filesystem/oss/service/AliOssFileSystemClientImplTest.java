@@ -134,7 +134,8 @@ class AliOssFileSystemClientImplTest extends DefaultMock {
         Mockito.when(this.ossClient.getObject(Mockito.anyString(), Mockito.anyString())).thenReturn(object);
         Assertions.assertNull(cloudFileSystemClient.download("files/test.txt"));
 
-        Assertions.assertFalse(cloudFileSystemClient.download("files/test.txt", null, FileOperation.READ));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> cloudFileSystemClient.download(
+                "files/test.txt", null, FileOperation.READ));
     }
 
     @Test

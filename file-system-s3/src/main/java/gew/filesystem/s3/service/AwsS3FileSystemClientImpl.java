@@ -32,8 +32,8 @@ import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.InputStream;
 import java.io.BufferedInputStream;
 import java.nio.ByteBuffer;
@@ -318,25 +318,30 @@ public class AwsS3FileSystemClientImpl implements CloudFileSystemClient {
 
     @Override
     public Boolean download(String source, File localFile, FileOperation... localFileOperation) throws IOException {
+        return download(this.defaultBucket, source, localFile, localFileOperation);
+    }
+
+    @Override
+    public Boolean download(String bucket, String source, File localFile, FileOperation... operations) throws IOException {
         checkParameter(this.defaultBucket, source);
         if (localFile == null) {
             throw new IllegalArgumentException("Invalid Local File");
         }
-        boolean append = localFileOperation != null && localFileOperation.length > 0
-                && FileOperation.APPEND.equals(localFileOperation[0]);
+        boolean append = operations != null && operations.length > 0
+                && FileOperation.APPEND.equals(operations[0]);
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(download(source));
-             OutputStream outputStream = FileUtils.openOutputStream(localFile, append)) {
-            long bytes = IOUtils.copyLarge(bufferedInputStream, outputStream);
-            log.debug("Download Object [{}] From Bucket [{}] to File [{}], {} Bytes",
-                    source, this.defaultBucket, localFile.getName(), bytes);
+             FileOutputStream fos = FileUtils.openOutputStream(localFile, append)) {
+            long bytes = IOUtils.copyLarge(bufferedInputStream, fos);
+            log.debug("Download Object [{}] From Bucket [{}] to File [{}], {} Bytes", source, bucket, localFile.getName(), bytes);
+            fos.flush();
             return true;
 
         } catch (Exception err) {
             if (err instanceof SdkServiceException) {
                 throw new IOException(err.getMessage(), err.getCause());
             } else {
-                log.error("Download Object [{}] From Bucket [{}] to File [{}] Failed: {}",
-                        source, this.defaultBucket, localFile.getName(), err.getMessage());
+                log.error("Download Object [{}] From Bucket [{}] to File [{}] Failed: {}", source, bucket,
+                        localFile.getName(), err.getMessage());
                 throw err;
             }
         }
@@ -472,18 +477,6 @@ public class AwsS3FileSystemClientImpl implements CloudFileSystemClient {
                     .build();
         }
     }
-
-    private Map<String, String> genMetaDataFromPairs(MetaDataPair... pairs) {
-        if (pairs != null && pairs.length > 0) {
-            Map<String, String> metadata = new HashMap<>();
-            Arrays.stream(pairs)
-                    .filter(m -> !StringUtils.isAnyEmpty(m.getKey(), m.getValue()))
-                    .forEach(m -> metadata.put(m.getKey(), m.getValue()));
-            return metadata;
-        }
-        return new HashMap<>(0);
-    }
-
 
     public void setRegion(String region) {
         this.region = region;

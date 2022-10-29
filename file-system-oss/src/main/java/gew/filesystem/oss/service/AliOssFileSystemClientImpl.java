@@ -23,6 +23,7 @@ import gew.filesystem.common.model.ObjectProperty;
 import gew.filesystem.common.service.CloudFileSystemClient;
 import gew.filesystem.oss.config.AliOssConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -211,17 +212,28 @@ public class AliOssFileSystemClientImpl implements CloudFileSystemClient {
 
     @Override
     public Boolean download(String source, File localFile, FileOperation... localFileOperation) throws IOException {
-        if (StringUtils.isBlank(source) || localFile == null) {
-            return false;
+        return download(this.defaultBucket, source, localFile, localFileOperation);
+    }
+
+    @Override
+    public Boolean download(String bucket, String source, File localFile, FileOperation... operations) throws IOException {
+        checkParameter(bucket, source);
+        if (localFile == null) {
+            throw new IllegalArgumentException("Invalid Local File");
         }
-        try (InputStream in = download(this.defaultBucket, source);
-             FileOutputStream fos = new FileOutputStream(localFile)) {
-            IOUtils.copyLarge(in, fos);
+        boolean append = operations != null && operations.length > 0
+                && FileOperation.APPEND.equals(operations[0]);
+        try (InputStream in = download(bucket, source);
+             FileOutputStream fos = FileUtils.openOutputStream(localFile, append)) {
+            long bytes = IOUtils.copyLarge(in, fos);
+            log.debug("Download Object Key={} From Bucket={} to File={} Success, {} Bytes", source, bucket,
+                    localFile.getName(), bytes);
             fos.flush();
             return true;
 
         } catch (Exception err) {
-            log.error("Download Object Key={} From Bucket={} Failed: {}", source, this.defaultBucket, err.getMessage());
+            log.error("Download Object Key={} From Bucket={} to File={} Failed: {}", source, bucket,
+                    localFile.getName(), err.getMessage());
             throw new IOException(err.getMessage(), err.getCause());
         }
     }
