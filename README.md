@@ -1,6 +1,5 @@
 ## < File System Client >
-![]("https://github.com/Jason-Gew/File-System-Client/workflows/Java-Build/badge.svg")
-<img src=https://github.com/Jason-Gew/File-System-Client/workflows/Java-Build/badge.svg>
+<img alt="Build" src=https://github.com/Jason-Gew/File-System-Client/workflows/Java-Build/badge.svg>
 
                                                                     			By Jason/GeW
 
@@ -10,6 +9,8 @@
  * Provide common **SPI** `BasicFileSystemClient` and `CloudFileSystemClient` for basic usage.
 
  * The `CloudFileSystemClient` is designed for cloud object store service like AWS S3, AliYun OSS, Azure Blob etc.
+
+ * `CloudFileSystemClient` supports large object download and append to local file.
  
  * `CompressUtil` supports multiple compression / decompression methods for both file and directory.
 
